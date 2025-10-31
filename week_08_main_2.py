@@ -1,6 +1,7 @@
 # Import your packages, modules, global constants first
 from self_py_fun.week_08_example_fun import *
 import numpy as np
+from numpy.random import random
 
 # Call your variable
 print(alpha)
