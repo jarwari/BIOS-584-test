@@ -1,5 +1,6 @@
 import os
 import scipy.io as sio
+import numpy as np
 from self_py_fun.HW10Fun import *
 from sklearn.linear_model import LogisticRegression as LR
 from sklearn.svm import SVC
@@ -26,13 +27,13 @@ bp_low = 0.5
 bp_upp = 6
 electrode_num = 16
 # Change the following directory to your own one.
-parent_dir = '/Users/tma33/Library/CloudStorage/OneDrive-EmoryUniversity/Emory/Rollins SPH/2025/BIOS-584/python_proj'
+parent_dir = '/Users/julia/Documents/GitHub/BIOS-584-test'
 parent_data_dir = '{}/data'.format(parent_dir)
 time_index = np.linspace(0, 800, 25)
 electrode_name_ls = ['F3', 'Fz', 'F4', 'T7', 'C3', 'Cz', 'C4', 'T8', 'CP3', 'CP4', 'P3', 'Pz', 'P4', 'PO7', 'PO8', 'Oz']
 subject_name = 'K114'
 # create a new folder called K114
-subject_dir = '{}/{}'.format(parent_dir, subject_name)
+subject_dir = f"{parent_dir}/{subject_name}"
 if not os.path.exists(subject_dir):
     os.mkdir(subject_dir)
 
@@ -41,8 +42,8 @@ char_trn_size = len(char_trn)
 
 # Step 1: Import dataset
 # Step 1.1: TRN dataset
-trn_data_name = '{}_001_BCI_TRN_Truncated_Data_{}_{}'.format(subject_name, bp_low, bp_upp)
-trn_data_dir = '{}/{}.mat'.format(parent_data_dir, trn_data_name)
+trn_data_name = f"{subject_name}_001_BCI_TRN_Truncated_Data_{bp_low}_{bp_upp}"
+trn_data_dir = f"{parent_data_dir}/{trn_data_name}.mat"
 eeg_trn_obj = sio.loadmat(trn_data_dir)
 
 # eeg_trn_obj is a dictionary!
@@ -58,8 +59,17 @@ eeg_trn_type = np.squeeze(eeg_trn_type, axis=1)
 # you should be able to obtain relevant data files named
 # eeg_frt_signal and eeg_frt_type
 # Write your own code below:
+frt_data_name = f"{subject_name}_001_BCI_FRT_Truncated_Data_{bp_low}_{bp_upp}"
+frt_data_dir = f"{parent_data_dir}/{frt_data_name}.mat"
+eeg_frt_obj = sio.loadmat(frt_data_dir)
 
-
+# eeg_trn_obj is a dictionary!
+print(eeg_frt_obj.keys())
+eeg_frt_signal = eeg_frt_obj['Signal']
+print(eeg_frt_signal.shape) # 3420, 400
+eeg_frt_type = eeg_frt_obj['Type']
+print(eeg_frt_type.shape) # 3420, 1
+eeg_frt_type = np.squeeze(eeg_frt_type, axis=1)
 
 
 # You have completed the exploratory data analysis in HW7 and HW8.
@@ -75,9 +85,14 @@ eeg_trn_type = np.squeeze(eeg_trn_type, axis=1)
 # except for LogisticRegression: set max_iter=1000
 # Write your own code below:
 
+logistic_model = LR(max_iter=1000)
+logistic_model.fit(eeg_trn_signal, eeg_trn_type)
 
+lda_model = LDA()
+lda_model.fit(eeg_trn_signal, eeg_trn_type)
 
-
+svm_model = SVC(probability=True)
+svm_model.fit(eeg_trn_signal, eeg_trn_type)
 
 # Step 3: Evaluate model performance on both TRN and FRT files
 # Step 3.1: Prediction accuracy on TRN files
@@ -86,24 +101,22 @@ eeg_trn_type = np.squeeze(eeg_trn_type, axis=1)
 # You are asked to generate stimulus-level probability for each method on TRN files,
 # denoted as logistic_y_trn, lda_y_trn, and svm_y_trn.
 # Write your own code below:
-
-
-
-
+logistic_y_trn = logistic_model.predict_proba(eeg_trn_signal)[:, 1].reshape(-1, 1)
+lda_y_trn = lda_model.predict_proba(eeg_trn_signal)[:, 1].reshape(-1, 1)
+svm_y_trn = svm_model.predict_proba(eeg_trn_signal)[:, 1].reshape(-1, 1)
 
 # Step 3.2: Prediction accuracy on FRT files
 # Similarly, you are asked to generate stimulus-level probability for each method on FRT files,
 # denoted as logistic_y_frt, lda_y_frt, and svm_y_frt.
 # Write your own code below:
-
-
-
-
+logistic_y_frt = logistic_model.predict_proba(eeg_frt_signal)[:, 1].reshape(-1, 1)
+lda_y_frt = lda_model.predict_proba(eeg_frt_signal)[:, 1].reshape(-1, 1)
+svm_y_frt = svm_model.predict_proba(eeg_frt_signal)[:, 1].reshape(-1, 1)
 
 # Step 4: Convert binary classification probability to character-level accuracy
 # This involves advanced data manipulation, so you do not need to write any new code.
 # Please run the following code to view the final results.
-'''
+
 eeg_trn_code = eeg_trn_obj['Code']
 eeg_frt_code = eeg_frt_obj['Code']
 char_frt = convert_raw_char_to_alphanumeric_stype(eeg_frt_obj['Text'])
@@ -176,7 +189,7 @@ print(svm_trn_accuracy)
 print(logistic_frt_accuracy)
 print(lda_frt_accuracy)
 print(svm_frt_accuracy)
-'''
+
 
 # Remember to answer two questions below:
 
