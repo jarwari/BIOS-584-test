@@ -203,5 +203,10 @@ print(svm_frt_accuracy)
 # svm_trn_accuracy = np.mean(svm_letter_mat_trn == np.array(list(char_trn))[:, np.newaxis], axis=0)
 # svm_frt_accuracy = np.mean(svm_letter_mat_frt == np.array(list(char_frt))[:, np.newaxis], axis=0)
 
+# Each row calculates the per-position accuracy for a specific model (logistic, lda, and svm) and dataset (trn or frt) by comparing predicted letters to the true letters and averaging correct matches.
+
 # Step 5: Summary
 # Which method performs the best? Why?
+# Overall, SVM performs the best on both datasets.
+# For TRN, SVM had the highest training accuracy for the first character (.95).
+# For FRT, SVM had the highest testing accuracy for the last character (1). 
